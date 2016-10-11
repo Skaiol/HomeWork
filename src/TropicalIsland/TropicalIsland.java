@@ -37,13 +37,10 @@ public class TropicalIsland {
         while (!_cellsStillNotConnected.isEmpty()) {
             for (IslandCell cell: _cellsStillNotConnected) {
                 boolean canGrowth = true;
-                boolean isLowland = true;
                 ArrayList<IslandCell> neighbors = getNeighbors(cell);
 
                 for (IslandCell neighbor: neighbors) {
                     if (cell.getHeight() >= neighbor.getHeight()) {
-                        isLowland = false;
-
                         if (neighbor.isConnectedWithOcean()) {
                             cell.setConnectionWithOcean();
                             cell.setHeight(neighbor.getHeight());
@@ -51,23 +48,15 @@ public class TropicalIsland {
                         }
                     }
 
-                    if (cell.getHeight() > neighbor.getHeight()) {
+                    if (cell.getHeight() > neighbor.getHeight())
                         canGrowth = false;
-                        break;
-                    }
                 }
 
-                if (!cell.isConnectedWithOcean()) {
-                    if (isLowland){
-                        int min = neighbors.stream()
-                                .map(x -> x.getHeight())
-                                .min(Integer::compare)
-                                .get();
-                        cell.setHeight(min);
-                    }
-                    else if (canGrowth)
-                        cell.incrementHeight();
-                }
+                if (cell.isConnectedWithOcean())
+                    continue;
+
+                if (canGrowth)
+                    cell.incrementHeight();
             }
 
             _cellsStillNotConnected.removeIf(cell -> cell.isConnectedWithOcean());
