@@ -1,4 +1,4 @@
-import TropicalIsland.TropicalIsland;
+package TropicalIsland;
 
 import java.util.ArrayList;
 import java.util.Scanner;

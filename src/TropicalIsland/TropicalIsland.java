@@ -1,55 +1,105 @@
 package TropicalIsland;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Created by Skaiol on 08.10.2016.
  */
 public class TropicalIsland {
-    private final IslandCell[][] _cells;
-    private int _minHeightBorder;
+    private final HashMap<Point, IslandCell> _cells;
+    private final ArrayList<IslandCell> _cellsStillNotConnected;
+    private final int _width;
+    private final int _height;
 
     public TropicalIsland(int[][] cells) {
-        _cells = new IslandCell[cells.length][cells[0].length];
-        _minHeightBorder = cells[1][0];
-        for (int i = 0; i < cells.length; i++) {
-            for (int j = 0; j < cells[0].length; j++) {
-                int height = cells[i][j];
-                _cells[i][j] = new IslandCell(height);
+        _height = cells.length;
+        _width = cells[0].length;
 
-                if (isBorder(i, j) && height < _minHeightBorder) {
-                    _minHeightBorder = height;
-                }
+        _cellsStillNotConnected = new ArrayList<>();
+        _cells = new HashMap<Point, IslandCell>();
+        for (int i = 0; i < _height; i++) {
+            for (int j = 0; j < _width; j++) {
+                int height = cells[i][j];
+                IslandCell cell = new IslandCell(height, j, i);
+                _cells.put(cell.getLocation(), cell);
+
+                if (isBeach(i, j))
+                    cell.setConnectionWithOcean();
+                else
+                    _cellsStillNotConnected.add(cell);
             }
         }
     }
 
     public void rain() {
-        for (int i = 1; i < _cells.length - 1; i++) {
-            for (int j = 1; j < _cells[0].length - 1; j++) {
-                _cells[i][j].increaseHeight(_minHeightBorder);
+        while (!_cellsStillNotConnected.isEmpty()) {
+            for (IslandCell cell: _cellsStillNotConnected) {
+                boolean canGrowth = true;
+                boolean isLowland = true;
+                ArrayList<IslandCell> neighbors = getNeighbors(cell);
+
+                for (IslandCell neighbor: neighbors) {
+                    if (cell.getHeight() >= neighbor.getHeight()) {
+                        isLowland = false;
+
+                        if (neighbor.isConnectedWithOcean()) {
+                            cell.setConnectionWithOcean();
+                            cell.setHeight(neighbor.getHeight());
+                            break;
+                        }
+                    }
+
+                    if (cell.getHeight() > neighbor.getHeight()) {
+                        canGrowth = false;
+                        break;
+                    }
+                }
+
+                if (!cell.isConnectedWithOcean()) {
+                    if (isLowland){
+                        int min = neighbors.stream()
+                                .map(x -> x.getHeight())
+                                .min(Integer::compare)
+                                .get();
+                        cell.setHeight(min);
+                    }
+                    else if (canGrowth)
+                        cell.incrementHeight();
+                }
             }
+
+            _cellsStillNotConnected.removeIf(cell -> cell.isConnectedWithOcean());
         }
     }
 
     public int getFullWaterVolume() {
-        if (_cells.length <= 2 || _cells[0].length <= 2) {
+        if (_height <= 2 || _width <= 2) {
             return 0;
         }
 
         int result = 0;
-        for (int i = 1; i < _cells.length - 1; i++) {
-            for (int j = 1; j < _cells[0].length - 1; j++) {
-                result += _cells[i][j].getWaterVolume();
-            }
+        for (IslandCell cell: _cells.values()) {
+            result += cell.getWaterVolume();
         }
         return result;
     }
 
-    private boolean isBorder(int i, int j) {
-        int iMax = _cells.length - 1;
-        int jMax = _cells[0].length - 1;
-        return (i == 0 || i == iMax || j == 0 || j == jMax)
-                && i != j
-                && !(i == 0 && j == jMax)
-                && !(i == iMax && j == 0);
+    private ArrayList<IslandCell> getNeighbors(IslandCell cell) {
+        Point location = cell.getLocation();
+
+        ArrayList<IslandCell> neighbors = new ArrayList<IslandCell>();
+        neighbors.add(_cells.get(new Point(location.x + 1, location.y)));
+        neighbors.add(_cells.get(new Point(location.x - 1, location.y)));
+        neighbors.add(_cells.get(new Point(location.x, location.y + 1)));
+        neighbors.add(_cells.get(new Point(location.x, location.y - 1)));
+        return neighbors;
+    }
+
+    private boolean isBeach(int i, int j) {
+        int iMax = _height - 1;
+        int jMax = _width - 1;
+        return (i == 0 || i == iMax || j == 0 || j == jMax);
     }
 }
