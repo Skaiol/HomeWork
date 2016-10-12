@@ -1,0 +1,87 @@
+package InfiniteSequence;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Objects;
+
+/**
+ * Created by Skaiol-PC on 12.10.2016.
+ */
+public class MayBeNumber {
+    private String _value;
+    private int _startOffset;
+    private int _endOffset;
+
+    public MayBeNumber(String value, int startOffset, int endOffset) {
+        _value = value;
+        _startOffset = startOffset;
+        _endOffset = endOffset;
+    }
+
+    public boolean isNumber() {
+        return _startOffset == 0 && _endOffset == 0;
+    }
+
+    public BigInteger getValue() {
+        return new BigInteger(_value);
+    }
+
+    public String getStringValue() {
+        return _value;
+    }
+
+    public BigInteger getStartOffset() {
+        return BigInteger.valueOf(_startOffset);
+    }
+
+    public void tryFillEnd(BigInteger increment) {
+        String incrementString = increment.toString();
+        String end = incrementString.substring(incrementString.length() - _endOffset);
+        String newValue = _value + end;
+        _value = newValue;
+    }
+
+    public void tryFillStart(MayBeNumber next) {
+        String start = next.getStringValue().substring(0, _startOffset);
+        String newValue = start + _value;
+        _value = newValue;
+    }
+
+    public boolean tryJoin(MayBeNumber next) {
+        if (next.getStringValue().startsWith("0"))
+            return false;
+
+        if (!next.isNumber()) {
+            BigInteger increment = getValue().add(BigInteger.ONE);
+            next.tryFillEnd(increment);
+        }
+
+        if (!isNumber()) {
+            tryFillStart(next);
+        }
+
+        BigInteger increment = getValue().add(BigInteger.ONE);
+        return Objects.equals(increment, next.getValue());
+    }
+
+    public static ArrayList<MayBeNumber> split(String value, int chunkSize, int offset) {
+        ArrayList<MayBeNumber> result = new ArrayList<MayBeNumber>();
+
+        String regularExpr = String.format("(?<=\\G.{%1$d})", chunkSize);
+        String[] splitValues;
+        if (offset == 0) {
+            splitValues = value.split(regularExpr);
+        }
+        else {
+            splitValues = value.substring(offset).split(regularExpr);
+            String firstValue = value.substring(0, offset);
+            result.add(new MayBeNumber(firstValue, chunkSize - firstValue.length(), 0));
+        }
+
+        for (String splitItem: splitValues) {
+            result.add(new MayBeNumber(splitItem, 0, chunkSize - splitItem.length()));
+        }
+
+        return result;
+    }
+}
