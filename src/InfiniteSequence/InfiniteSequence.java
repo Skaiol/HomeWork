@@ -9,8 +9,14 @@ import java.util.ArrayList;
 public class InfiniteSequence {
     public void run() {
         System.out.println("Вводите подпоследовательности построчно. По окончании ввода введите Enter");
-        System.out.println(getPosition3("055"));
-        System.out.println(getPosition("055"));
+        System.out.println(getPosition3("8192"));
+        System.out.println(getPosition("8192"));
+        System.out.println(getPosition3("91"));
+        System.out.println(getPosition("91"));
+        System.out.println(getPosition3("99999"));
+        System.out.println(getPosition("99999"));
+        System.out.println(getPosition3("01"));
+        System.out.println(getPosition("01"));
 
         String str = "12345678910111213141516171819202122232425262728293031323334353637383940";
     }

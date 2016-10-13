@@ -34,17 +34,22 @@ public class MayBeNumber {
         return BigInteger.valueOf(_startOffset);
     }
 
-    public void tryFillEnd(BigInteger increment) {
+    public void tryFillEnd(MayBeNumber prev) {
+        BigInteger increment = prev.getValue().add(BigInteger.ONE);
         String incrementString = increment.toString();
         String end = incrementString.substring(incrementString.length() - _endOffset);
-        String newValue = _value + end;
-        _value = newValue;
+        _value = _value + end;
     }
 
     public void tryFillStart(MayBeNumber next) {
-        String start = next.getStringValue().substring(0, _startOffset);
-        String newValue = start + _value;
-        _value = newValue;
+        BigInteger decrement = next.getValue().subtract(BigInteger.ONE);
+        if (decrement.equals(getValue())) {
+            _startOffset = 0;
+            return;
+        }
+        String decrementString = decrement.toString();
+        String start = decrementString.substring(0, _startOffset);
+        _value = start + _value;
     }
 
     public boolean tryJoin(MayBeNumber next) {
@@ -52,8 +57,7 @@ public class MayBeNumber {
             return false;
 
         if (!next.isNumber()) {
-            BigInteger increment = getValue().add(BigInteger.ONE);
-            next.tryFillEnd(increment);
+            next.tryFillEnd(this);
         }
 
         if (!isNumber()) {
