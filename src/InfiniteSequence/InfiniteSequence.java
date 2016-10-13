@@ -7,76 +7,17 @@ import java.util.ArrayList;
  * Created by Skaiol-PC on 08.10.2016.
  */
 public class InfiniteSequence {
-    public void run() {
-        System.out.println("Вводите подпоследовательности построчно. По окончании ввода введите Enter");
-        System.out.println(getPosition3("8192"));
-        System.out.println(getPosition("8192"));
-        System.out.println(getPosition3("91"));
-        System.out.println(getPosition("91"));
-        System.out.println(getPosition3("43520"));
-        System.out.println(getPosition("43520"));
-        System.out.println(getPosition3("806040"));
-        System.out.println(getPosition("806040"));
-        System.out.println(getPosition3("99999"));
-        System.out.println(getPosition("99999"));
-        System.out.println(getPosition3("0055"));
-        System.out.println(getPosition("0055"));
-
-        String str = "12345678910111213141516171819202122232425262728293031323334353637383940";
-    }
-
-    private static long getPosition(String value) {
-        char valueFirstChar = value.charAt(0);
-        long count = 1;
-        long position = 1;
-
-        while (true) {
-            String positionString = String.valueOf(count);
-            int positionFirstChar = positionString.indexOf(valueFirstChar);
-
-            if (positionFirstChar != -1) {
-                StringBuilder builder = new StringBuilder(positionString.substring(positionFirstChar));
-                long countNew = count;
-
-                while (builder.length() < value.length()) {
-                    countNew++;
-                    builder.append(countNew);
-                }
-
-                if (builder.indexOf(value) != -1) {
-                    return position + positionFirstChar;
-                }
-            }
-
-            position += positionString.length();
-            count++;
-        }
-    }
-
-    private static long getPosition2(String value) {
-        long count = 1;
-        StringBuilder builder = new StringBuilder();
-        while (true) {
-            builder.append(count);
-            int position = builder.indexOf(value);
-            if (position != -1) {
-                return position + 1;
-            }
-            count++;
-        }
-    }
-
-    private static BigInteger getPosition3(String value) {
-        int valueLength = value.length();
+    public BigInteger getPositionOfSubSequence(String subSequence) {
+        int valueLength = subSequence.length();
         if (valueLength == 1) {
-            return new BigInteger(value);
+            return new BigInteger(subSequence);
         }
 
         for (int i = 1; i <= valueLength; i++) {
             ArrayList<MayBeNumber> candidates = new ArrayList<MayBeNumber>();
 
             for (int j = 0; j < i; j++) {
-                ArrayList<MayBeNumber> splited = MayBeNumber.split(value, i, j);
+                ArrayList<MayBeNumber> splited = MayBeNumber.split(subSequence, i, j);
                 boolean canJoin = true;
 
                 if (splited.size() == 1 && splited.get(0).getStringValue().startsWith("0"))
@@ -102,7 +43,7 @@ public class InfiniteSequence {
                 return calcPositionInSequence(min.getValue()).add(min.getStartOffset());
             }
         }
-        return calcPositionInSequence(new BigInteger(value));
+        return calcPositionInSequence(new BigInteger(subSequence));
     }
 
     private static BigInteger calcPositionInSequence(BigInteger number) {
