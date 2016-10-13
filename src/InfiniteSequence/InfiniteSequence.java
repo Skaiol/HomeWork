@@ -13,10 +13,14 @@ public class InfiniteSequence {
         System.out.println(getPosition("8192"));
         System.out.println(getPosition3("91"));
         System.out.println(getPosition("91"));
+        System.out.println(getPosition3("43520"));
+        System.out.println(getPosition("43520"));
+        System.out.println(getPosition3("806040"));
+        System.out.println(getPosition("806040"));
         System.out.println(getPosition3("99999"));
         System.out.println(getPosition("99999"));
-        System.out.println(getPosition3("01"));
-        System.out.println(getPosition("01"));
+        System.out.println(getPosition3("0055"));
+        System.out.println(getPosition("0055"));
 
         String str = "12345678910111213141516171819202122232425262728293031323334353637383940";
     }
@@ -74,6 +78,10 @@ public class InfiniteSequence {
             for (int j = 0; j < i; j++) {
                 ArrayList<MayBeNumber> splited = MayBeNumber.split(value, i, j);
                 boolean canJoin = true;
+
+                if (splited.size() == 1 && splited.get(0).getStringValue().startsWith("0"))
+                    canJoin = false;
+
                 for (int k = 0; k < splited.size() - 1; k++) {
                     if (!splited.get(k).tryJoin(splited.get(k + 1))) {
                         canJoin = false;

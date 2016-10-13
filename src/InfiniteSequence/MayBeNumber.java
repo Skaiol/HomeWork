@@ -37,6 +37,13 @@ public class MayBeNumber {
     public void tryFillEnd(MayBeNumber prev) {
         BigInteger increment = prev.getValue().add(BigInteger.ONE);
         String incrementString = increment.toString();
+
+        StringBuilder builder = new StringBuilder(incrementString);
+        while (builder.length() < prev.getStringValue().length()) {
+            builder.insert(0, "0");
+        }
+        incrementString = builder.toString();
+
         String end = incrementString.substring(incrementString.length() - _endOffset);
         _value = _value + end;
     }
@@ -53,6 +60,10 @@ public class MayBeNumber {
     }
 
     public boolean tryJoin(MayBeNumber next) {
+        if (getStringValue().equals("0") && _startOffset == 0) {
+            return false;
+        }
+
         if (next.getStringValue().startsWith("0"))
             return false;
 
