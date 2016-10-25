@@ -17,10 +17,10 @@ public class IslandCell {
         _location = new Point(x, y);
     }
 
-    public void setHeight(int value) {
-        if (value < _initialHeight)
-            return;
-        _height = value;
+    public boolean setHeight(int value) {
+        int prev = _height;
+        _height = value <= _initialHeight ? _initialHeight : value;
+        return prev != _height;
     }
 
     public int getHeight() {
@@ -41,7 +41,9 @@ public class IslandCell {
         return _connectedWithOcean;
     }
 
-    public void setConnectionWithOcean() {
-        this._connectedWithOcean = true;
+    public boolean setConnectionWithOcean() {
+        boolean prev = _connectedWithOcean;
+        _connectedWithOcean = true;
+        return prev != _connectedWithOcean;
     }
 }

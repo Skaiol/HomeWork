@@ -9,7 +9,7 @@ import java.util.HashMap;
  */
 public class TropicalIsland {
     private final HashMap<Point, IslandCell> _cells;
-    private final ArrayList<IslandCell> _cellsStillNotConnected;
+    private final ArrayList<IslandCell> _cellsIsNotCoast;
     private final int _width;
     private final int _height;
 
@@ -17,7 +17,7 @@ public class TropicalIsland {
         _height = cells.length;
         _width = cells[0].length;
 
-        _cellsStillNotConnected = new ArrayList<>();
+        _cellsIsNotCoast = new ArrayList<>();
         _cells = new HashMap<Point, IslandCell>();
         for (int i = 0; i < _height; i++) {
             for (int j = 0; j < _width; j++) {
@@ -25,43 +25,56 @@ public class TropicalIsland {
                 IslandCell cell = new IslandCell(height, j, i);
                 _cells.put(cell.getLocation(), cell);
 
-                if (isBeach(i, j))
+                if (isCoast(i, j))
                     cell.setConnectionWithOcean();
                 else
-                    _cellsStillNotConnected.add(cell);
+                    _cellsIsNotCoast.add(cell);
             }
         }
     }
 
     public void rain() {
-        while (!_cellsStillNotConnected.isEmpty()) {
-            for (IslandCell cell: _cellsStillNotConnected) {
+        boolean haveChanges = true;
+        while (haveChanges) {
+            haveChanges = false;
+            for (IslandCell cell: _cellsIsNotCoast) {
                 boolean canGrowth = true;
                 ArrayList<IslandCell> neighbors = getNeighbors(cell);
 
                 for (IslandCell neighbor: neighbors) {
-                    if (cell.getHeight() >= neighbor.getHeight()) {
-                        if (neighbor.isConnectedWithOcean()) {
-                            cell.setConnectionWithOcean();
-                            cell.setHeight(neighbor.getHeight());
-                            break;
+                    if (cell.getHeight() >= neighbor.getHeight() && neighbor.isConnectedWithOcean()) {
+                        if (cell.setConnectionWithOcean()) {
+                            haveChanges = true;
                         }
+                        break;
                     }
 
                     if (cell.getHeight() > neighbor.getHeight())
                         canGrowth = false;
                 }
 
-                if (cell.isConnectedWithOcean())
+                if (cell.isConnectedWithOcean()) {
+                    int minHeight = neighbors.stream()
+                            .filter(x -> x.isConnectedWithOcean())
+                            .map(x -> x.getHeight())
+                            .sorted()
+                            .findFirst()
+                            .get();
+
+                    if (cell.setHeight(minHeight)) {
+                        haveChanges = true;
+                    }
                     continue;
+                }
 
-                if (canGrowth)
+                if (canGrowth) {
                     cell.incrementHeight();
+                    haveChanges = true;
+                }
             }
-
-            _cellsStillNotConnected.removeIf(cell -> cell.isConnectedWithOcean());
         }
     }
+
 
     public int getFullWaterVolume() {
         if (_height <= 2 || _width <= 2) {
@@ -86,7 +99,7 @@ public class TropicalIsland {
         return neighbors;
     }
 
-    private boolean isBeach(int i, int j) {
+    private boolean isCoast(int i, int j) {
         int iMax = _height - 1;
         int jMax = _width - 1;
         return (i == 0 || i == iMax || j == 0 || j == jMax);

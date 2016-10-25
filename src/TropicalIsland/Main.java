@@ -29,8 +29,10 @@ public class Main {
             }
 
             System.out.println("Results:");
-            islands.forEach(x -> x.rain());
-            islands.forEach(x -> System.out.println(x.getFullWaterVolume()));
+            islands.forEach(x -> {
+                x.rain();
+                System.out.println(x.getFullWaterVolume());
+            });
         }
         finally {
             in.close();
